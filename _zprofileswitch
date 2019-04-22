@@ -1,0 +1,29 @@
+#compdef zprofileswitch
+
+_zprofileswitch() {
+	local PSD="${PROFILESWITCH_DIR:-${HOME}/.zprofileswitch}"
+	local state
+	_arguments \
+		':command:->command' \
+		'*:: :->args'
+	case "${state}"; in
+		command)
+			_alternative 'command:command:(eval list switch edit set delete)'
+			;;
+		args)
+			case "${words[1]}"; in
+				"switch"|"edit"|"delete")
+					_arguments \
+						": :_files -W ${PSD}/profile"
+					;;
+				"set")
+					_arguments \
+						": :_files -W ${PSD}/profile" \
+						"*:statement list"
+					;;
+			esac
+			;;
+	esac
+}
+
+_zprofileswitch
