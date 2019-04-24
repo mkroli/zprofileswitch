@@ -3,7 +3,10 @@ function zprofileswitch() {
 	[ -d "${PSD}/profile" ] || mkdir -p "${PSD}/profile"
 	case "${1}" in
 		"eval")
-			[ -r "${PSD}/current" ] && source "${PSD}/current"
+			if [ -r "${PSD}/current" ]; then
+				source "${PSD}/current"
+				_ZPROFILESWITCH_CURRENT="$(readlink ${PSD}/current)"
+			fi
 			;;
 		"list")
 			ls "${PSD}/profile" | grep -v current
@@ -58,3 +61,12 @@ EOF
 zprofileswitch eval
 
 alias zps=zprofileswitch
+
+function _zprofileswitch_precmd() {
+	local PSD="${PROFILESWITCH_DIR:-${HOME}/.zprofileswitch}"
+	if [ "$(readlink ${PSD}/current)" != "${_ZPROFILESWITCH_CURRENT}" ]; then
+		zprofileswitch eval
+	fi
+}
+
+precmd_functions+=(_zprofileswitch_precmd)
